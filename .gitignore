@@ -1,5 +1,5 @@
 # virtual environment
-.venv
+.venv/
 
 # Trained model outputs
 runs/
