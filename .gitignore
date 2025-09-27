@@ -6,3 +6,6 @@ runs/
 
 # Data files
 data/
+
+# Pychache
+__pycache__/

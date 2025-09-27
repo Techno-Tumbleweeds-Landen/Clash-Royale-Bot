@@ -28,6 +28,11 @@ Detect items in the Merge Tactics shop using YOLOv8 and screenshots from a Blues
 
 - Packages: `ultralytics`, `opencv-python`, `mss`, `keyboard`, `pygetwindow`, `numpy`
 
+### Install
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
 ### Note
 
 Most of the code for training, testing, and gathering the data **so far** was ai generated.
@@ -35,8 +40,3 @@ This is a very big project with so many new things and it has taught me so much 
 Now that I have an understanding of how roboflow works, with creating models and labeling data
 I have the knowledge to do it myself, so for training the bench and field models, I will train 
 and code the bench and field models without relying on AI.
-
-### Install
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
