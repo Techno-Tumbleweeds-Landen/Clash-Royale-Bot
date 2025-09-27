@@ -2,28 +2,12 @@ import cv2
 import numpy as np
 import pygetwindow as gw
 import mss
+from utils import capture_window
 
 # === CONFIG ===
 WINDOW_TITLE = "Bluestacks"
 SCREENSHOT_PATH = "temp_screenshot.png"
 
-# === Step 1: Capture Bluestacks Window ===
-def capture_bluestacks():
-    win = gw.getWindowsWithTitle(WINDOW_TITLE)[0]
-    bbox = (win.left, win.top, win.right, win.bottom)
-    with mss.mss() as sct:
-        monitor = {
-            "left": bbox[0],
-            "top": bbox[1],
-            "width": bbox[2] - bbox[0],
-            "height": bbox[3] - bbox[1]
-        }
-        img = np.array(sct.grab(monitor))
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-        cv2.imwrite(SCREENSHOT_PATH, img)
-        return img
-
-# === Step 2: Click to Define ROI ===
 clicks = []
 
 def click_event(event, x, y, flags, param):
@@ -40,8 +24,9 @@ def click_event(event, x, y, flags, param):
             print(f"\n✅ Final SHOP_ROI = ({x1}, {y1}, {x2}, {y2})")
             print("Copy this into your detection script!")
 
-# === Run ===
-img = capture_bluestacks()
+img = capture_window(WINDOW_TITLE)
+cv2.imwrite(SCREENSHOT_PATH, img)
+
 cv2.imshow("🖼️ Click top-left and bottom-right of shop panel", img)
 cv2.setMouseCallback("🖼️ Click top-left and bottom-right of shop panel", click_event)
 cv2.waitKey(0)

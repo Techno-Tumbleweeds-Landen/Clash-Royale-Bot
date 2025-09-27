@@ -6,7 +6,7 @@ from utils import capture_window
 
 # Settings
 WINDOW_TITLE = "Bluestacks"
-SAVE_DIR = "data/shop_troops/data_set2s"
+SAVE_DIR = "data/shop_data/raw_shop_data"
 SHOP_ROI = (470, 941, 787, 1085)  # (x1, y1, x2, y2)
 FIELD_ROI = (477, 543, 833, 765)
 
