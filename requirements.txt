@@ -1,0 +1,6 @@
+ultralytics
+opencv-python
+mss
+keyboard
+pygetwindow
+numpy

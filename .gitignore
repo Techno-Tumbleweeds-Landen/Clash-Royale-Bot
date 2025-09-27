@@ -1,0 +1,8 @@
+# virtual environment
+.venv
+
+# Trained model outputs
+runs/
+
+# Data files
+data/
