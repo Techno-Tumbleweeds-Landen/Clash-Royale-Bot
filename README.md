@@ -1,4 +1,4 @@
-# Merge Tactics — Shop Detection Bot
+# Merge Tactics Bot
 
 Detect items in the Merge Tactics shop using YOLOv8 and screenshots from a Bluestacks emulator.
 
