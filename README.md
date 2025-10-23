@@ -18,16 +18,15 @@ Detect items in the Merge Tactics shop using OpenCV template matching and screen
 
 ## What's next
 
-1. train model to read the bench
-2. train model to read the field
-3. find python library to use to control the game
-4. create main game logic
+1. Use template matching to read bench and field
+2. store game state
+3. hopefully create a neural network and train it to make decisions for the game
 
 ## Requirements
 
 - Packages: `opencv-python`, `mss`, `keyboard`, `pygetwindow`, `numpy`
 
-### Install
+## Install
 python -m venv .venv
 
 .\.venv\Scripts\Activate.ps1
