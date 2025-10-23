@@ -1,7 +1,11 @@
 import pygetwindow as gw
-import mss
 import numpy as np
-import cv2
+import mss, cv2, time, os, keyboard
+
+SHOP_ROI = (402, 815, 678, 925)
+ELIXIR_ROI = (398, 974, 461, 1044)
+ELIXIR_FRAME = (407, 984, 452, 1032)
+LEFT_SHOP_FRAME = (117, 941, 192, 1037)
 
 def get_window_rect(title_substr):
     wins = gw.getWindowsWithTitle(title_substr)
@@ -9,11 +13,12 @@ def get_window_rect(title_substr):
         raise RuntimeError("Window not found")
     win = wins[0]
     left, top = win.topleft
-    a = {
+    dimensions = {
         "width": win.width,
         "height": win.height
     }
-    print(a)
+    if dimensions["width"] != 576 or dimensions["height"] != 1070:
+        raise RuntimeError("Window size is not 576x1070")
     return {
         "left": left,
         "top": top,
@@ -33,6 +38,68 @@ def capture_window(title_substr):
 
         screenshot = sct.grab(monitor)
         img = np.array(screenshot)
-        #gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-         
         return img
+
+def determine_roi(window_title, save_dir=None):
+    window_name = "Select ROI - Click Top-Left and Bottom-Right"
+    img = capture_window(window_title)
+
+    if save_dir:
+        cv2.imwrite(save_dir, img)
+
+    clicks = []
+    roi_result = {}
+
+    def click_event(event, x, y, flags, param):
+        nonlocal clicks, img, roi_result
+        if event == cv2.EVENT_LBUTTONDOWN:
+            clicks.append((x, y))
+            print(f"Clicked at: ({x}, {y})")
+            if len(clicks) == 2:
+                x1, y1 = clicks[0]
+                x2, y2 = clicks[1]
+                # Normalize ordering
+                x1n, x2n = sorted((int(x1), int(x2)))
+                y1n, y2n = sorted((int(y1), int(y2)))
+                roi = img[y1n:y2n, x1n:x2n].copy()
+                cv2.imshow("Cropped ROI", roi)
+                cv2.waitKey(0)
+                cv2.destroyWindow("Cropped ROI")
+                roi_result["roi"] = (x1n, y1n, x2n, y2n)
+                print(f"Final ROI = ({x1n}, {y1n}, {x2n}, {y2n})")
+                # close main window to finish interaction
+                cv2.destroyWindow(window_name)
+
+    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+    cv2.setMouseCallback(window_name, click_event)
+    cv2.imshow(window_name, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    if "roi" not in roi_result:
+        raise RuntimeError("ROI selection cancelled or incomplete")
+    return roi_result["roi"]
+
+def screenshot_collector(roi, window_title="Bluestacks", save_dir="templates"):
+    print("Press 'S' to capture region. Press 'Q' to quit.")
+    os.makedirs(save_dir, exist_ok=True)
+    counter = 0
+
+    while True:
+        if keyboard.is_pressed("s"):
+            frame = capture_window(window_title) # captures full window
+            x1, y1, x2, y2 = roi # unpacks roi
+            shop_crop = frame[y1:y2, x1:x2] # crops to roi 
+
+            filename = os.path.join(
+                save_dir, 
+                f"capture_{int(time.time())}_{counter}.png"
+            ) # determines file name and location based on time and counter
+            cv2.imwrite(filename, shop_crop) # saves file
+            counter += 1 # adds one to counter
+            print(f"Saved: {filename}") # prints saved file name
+            time.sleep(0.3) # very simple debounce
+
+        if keyboard.is_pressed("q"):
+            print("Exiting image collector.") # prints exit message
+            break # exits loop
