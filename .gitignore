@@ -1,11 +1,8 @@
 # virtual environment
 .venv/
 
-# Trained model outputs
-runs/
-
-# Data files
-data/
+# debug code
+debug.py
 
 # Pychache
 __pycache__/
