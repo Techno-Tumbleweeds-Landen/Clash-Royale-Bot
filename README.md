@@ -29,10 +29,13 @@ Detect items in the Merge Tactics shop using OpenCV template matching and screen
 
 ### Install
 python -m venv .venv
+
 .\.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
 
 ### Note
 
 in utils:
-    determine_roi() and screenshot_collector() are both AI generated, as they were originally meant for debugging
+
+- determine_roi() and screenshot_collector() are both AI generated, as they were originally meant for debugging
