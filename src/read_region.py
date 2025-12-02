@@ -1,24 +1,31 @@
+#read_region
 from utils import *
 from game import *
 import cv2
 
 class ReadRegion:
     def __init__(self, **regions):
-        self.SHOP_ROI = regions
+        self.ROI = regions
         self.FILE_PATH = "templates/unnamed_character.png"
         self.WINDOW_NAME = "Bluestacks"
         self.GameInfo = GameInfo()
         self.confidence = 0.8
 
+    def read_elixer(self):
+        game_sct = capture_window(self.WINDOW_NAME) # screenshots bluestacks
+        x1, y1, x2, y2 = self.ROI["SHOP"] # unpacks the shop region
+
+
 
     def read_shop(self):
         game_sct = capture_window(self.WINDOW_NAME) # screenshots bluestacks
-        x1, y1, x2, y2 = self.GameInfo.regions["SHOP"] # unpacks the shop region
+        x1, y1, x2, y2 = self.ROI["SHOP"] # unpacks the shop region
         shop_sct = game_sct[y1:y2, x1:x2] # crops the bluestacks screenshot
 
         gray_shop_sct = cv2.cvtColor(shop_sct, cv2.COLOR_BGR2GRAY) # converts to grayscale
 
         shop_characters = [None, None, None]
+        shop_weights = [None, None, None]
 
         for character in self.GameInfo.characters:
             template = cv2.imread(f"templates/cards/{character}.png", cv2.IMREAD_GRAYSCALE) # gets character template
@@ -33,15 +40,34 @@ class ReadRegion:
 
             # Determine position
             if max_val >= self.confidence:
+                # First shop slot
                 if match_x < region_width / 3:
+                    # If it hasn't found a match yet
                     if shop_characters[0] == None:
                         shop_characters[0] = character
+                        shop_weights[0] = max_val
+                    # if it has found a match already, it keeps the higher weighted one
+                    else: 
+                        if max_val > shop_weights[0]:
+                            shop_characters[0] = character
+
+                # Second shop slot
                 elif match_x < 2 * region_width / 3:
                     if shop_characters[1] == None:
                         shop_characters[1] = character
+                        shop_weights[1] = max_val
+                    else: 
+                        if max_val > shop_weights[1]:
+                            shop_characters[1] = character
+                
+                # Last shop slot
                 else:
                     if shop_characters[2] == None:
                         shop_characters[2] = character
+                        shop_weights[2] = max_val
+                    else: 
+                        if max_val > shop_weights[2]:
+                            shop_characters[2] = character
         return shop_characters
 
         

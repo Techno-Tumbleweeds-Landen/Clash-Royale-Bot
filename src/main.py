@@ -1,3 +1,4 @@
+#main
 from utils import *
 from read_region import *
 from game import *
@@ -17,4 +18,6 @@ if __name__ == "__main__":
 
     reader = ReadRegion(**info.regions)
 
-    print(reader.read_shop())
+    print(reader.ROI)
+    print(reader.read_elixer())
+    #print(reader.read_shop())

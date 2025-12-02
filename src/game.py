@@ -1,4 +1,4 @@
-
+#game
 class GameInfo:
     def __init__(self):
         self.characters = ("archer_queen", "archer", "baby_dragon",

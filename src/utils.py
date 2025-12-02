@@ -1,6 +1,8 @@
+#utils
 import pygetwindow as gw
 import numpy as np
 import mss, cv2, time, os, keyboard
+from exceptions import *
 
 SHOP_ROI = (402, 815, 678, 925)
 ELIXIR_ROI = (398, 974, 461, 1044)
@@ -8,37 +10,50 @@ ELIXIR_FRAME = (407, 984, 452, 1032)
 LEFT_SHOP_FRAME = (117, 941, 192, 1037)
 
 def get_window_rect(title_substr):
-    wins = gw.getWindowsWithTitle(title_substr)
-    if not wins:
-        raise RuntimeError("Window not found")
-    win = wins[0]
-    left, top = win.topleft
-    dimensions = {
-        "width": win.width,
-        "height": win.height
-    }
-    if dimensions["width"] != 576 or dimensions["height"] != 1070:
-        raise RuntimeError("Window size is not 576x1070")
-    return {
-        "left": left,
-        "top": top,
-        "width": win.width,
-        "height": win.height
-    }
+    try:
+            
+        wins = gw.getWindowsWithTitle(title_substr)
+        print(wins)
+        if not wins:
+            raise RuntimeError("Window not found")
+        win = wins[0]
+        left, top = win.topleft
+        dimensions = {
+            "width": win.width,
+            "height": win.height
+        }
+        if dimensions["width"] != 576 or dimensions["height"] != 1070:
+            raise RuntimeError("Window size is not 576x1070")
+        return {
+            "left": left,
+            "top": top,
+            "width": win.width,
+            "height": win.height
+        }
+    except Exception as e:
+        print(f"[-] Exception found: {type(e).__name__}: {e}")
+        raise WindowNotFound("Failed to find window containing:", title_substr)
+
 
 def capture_window(title_substr):
-    region = get_window_rect(title_substr)
-    with mss.mss() as sct:
-        monitor = {
-            "left": region["left"],
-            "top": region["top"],
-            "width": region["width"],
-            "height": region["height"]
-        }
+    try:
+        region = get_window_rect(title_substr)
+        with mss.mss() as sct:
+            monitor = {
+                "left": region["left"],
+                "top": region["top"],
+                "width": region["width"],
+                "height": region["height"]
+            }
 
-        screenshot = sct.grab(monitor)
-        img = np.array(screenshot)
-        return img
+            screenshot = sct.grab(monitor)
+            img = np.array(screenshot)
+            print("[+] Capture Successful")
+            return img
+    except Exception as e:
+        print(f"[-] Exception found: {type(e).__name}: {e}")
+        raise ScreenshotNotTaken("Failed to capture Screenshot")
+        
 
 def determine_roi(window_title, save_dir=None):
     window_name = "Select ROI - Click Top-Left and Bottom-Right"
