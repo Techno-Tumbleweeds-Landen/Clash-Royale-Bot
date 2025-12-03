@@ -11,9 +11,29 @@ class ReadRegion:
         self.GameInfo = GameInfo()
         self.confidence = 0.8
 
-    def read_elixer(self):
+    def read_elixir(self):
         game_sct = capture_window(self.WINDOW_NAME) # screenshots bluestacks
-        x1, y1, x2, y2 = self.ROI["SHOP"] # unpacks the shop region
+        x1, y1, x2, y2 = self.ROI["ELIXIR"] # unpacks the elixir region
+        elixir_sct = game_sct[y1:y2, x1:x2] # crops the bluestacks screenshot
+
+        gray_elixir_sct = cv2.cvtColor(elixir_sct, cv2.COLOR_BGR2GRAY) # converts to grayscale
+
+        best_elixir = 10
+        best_weight = 0
+
+        # Check elixir values 0-10
+        for elixir_value in range(11):
+            template = cv2.imread(f"templates/elixirs/elixer{elixir_value:02d}.png", cv2.IMREAD_GRAYSCALE) # gets elixir template
+            template_match = cv2.matchTemplate(gray_elixir_sct, template, cv2.TM_CCOEFF_NORMED) # matches template
+
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_match)
+
+            # Keep the highest confidence match
+            if max_val >= self.confidence and max_val > best_weight:
+                best_elixir = elixir_value
+                best_weight = max_val
+
+        return best_elixir
 
 
 

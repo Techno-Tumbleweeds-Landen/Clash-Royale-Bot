@@ -1,5 +1,6 @@
 #utils
 import pygetwindow as gw
+import pyautogui
 import numpy as np
 import mss, cv2, time, os, keyboard
 from exceptions import *
@@ -9,11 +10,14 @@ ELIXIR_ROI = (398, 974, 461, 1044)
 ELIXIR_FRAME = (407, 984, 452, 1032)
 LEFT_SHOP_FRAME = (117, 941, 192, 1037)
 
+def click_at(x, y, button='left'):
+    pyautogui.click(x, y, button=button)
+    time.sleep(0.2)
+
 def get_window_rect(title_substr):
     try:
             
         wins = gw.getWindowsWithTitle(title_substr)
-        print(wins)
         if not wins:
             raise RuntimeError("Window not found")
         win = wins[0]
@@ -95,7 +99,7 @@ def determine_roi(window_title, save_dir=None):
         raise RuntimeError("ROI selection cancelled or incomplete")
     return roi_result["roi"]
 
-def screenshot_collector(roi, window_title="Bluestacks", save_dir="templates"):
+def screenshot_collector(roi1, roi2, roi3, window_title="Bluestacks", save_dir="templates"):
     print("Press 'S' to capture region. Press 'Q' to quit.")
     os.makedirs(save_dir, exist_ok=True)
     counter = 0
@@ -103,7 +107,36 @@ def screenshot_collector(roi, window_title="Bluestacks", save_dir="templates"):
     while True:
         if keyboard.is_pressed("s"):
             frame = capture_window(window_title) # captures full window
-            x1, y1, x2, y2 = roi # unpacks roi
+            x1, y1, x2, y2 = roi1 # unpacks roi
+            
+            shop_crop = frame[y1:y2, x1:x2] # crops to roi 
+
+            filename = os.path.join(
+                save_dir, 
+                f"capture_{int(time.time())}_{counter}.png"
+            ) # determines file name and location based on time and counter
+            cv2.imwrite(filename, shop_crop) # saves file
+            counter += 1 # adds one to counter
+            print(f"Saved: {filename}") # prints saved file name
+            time.sleep(0.3) # very simple debounce
+        elif keyboard.is_pressed("d"):
+            frame = capture_window(window_title) # captures full window
+            x1, y1, x2, y2 = roi2 # unpacks roi
+            
+            shop_crop = frame[y1:y2, x1:x2] # crops to roi 
+
+            filename = os.path.join(
+                save_dir, 
+                f"capture_{int(time.time())}_{counter}.png"
+            ) # determines file name and location based on time and counter
+            cv2.imwrite(filename, shop_crop) # saves file
+            counter += 1 # adds one to counter
+            print(f"Saved: {filename}") # prints saved file names
+            time.sleep(0.3) # very simple debounce
+        elif keyboard.is_pressed("f"):
+            frame = capture_window(window_title) # captures full window
+            x1, y1, x2, y2 = roi3 # unpacks roi
+            
             shop_crop = frame[y1:y2, x1:x2] # crops to roi 
 
             filename = os.path.join(
@@ -117,4 +150,13 @@ def screenshot_collector(roi, window_title="Bluestacks", save_dir="templates"):
 
         if keyboard.is_pressed("q"):
             print("Exiting image collector.") # prints exit message
-            break # exits loop
+            break # exits loopf
+
+if __name__ == "__main__":
+    # shop: (130, 923, 418, 1049)sd
+    # left: (139, 938, 219, 1040)
+    left = (139, 938, 219, 1040)
+    middle = (236, 938, 316, 1040)
+    right = (333, 938, 413, 1040)
+    #determine_roi("Bluestacks")
+    screenshot_collector(left, middle, right, save_dir="templates/cards")
